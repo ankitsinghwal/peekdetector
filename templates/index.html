@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTC Malware Detection</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sistc-blue': '#1e3a8a', // Dark Blue for branding
+                        'sistc-gold': '#f59e0b', // Gold/Amber accent
+                        'malware': '#ef4444', // Red for Malware
+                        'benign': '#10b981', // Green for Benign
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for feature list */
+        #feature-inputs::-webkit-scrollbar { width: 8px; }
+        #feature-inputs::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        #feature-inputs::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+        #feature-inputs::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        
+        /* Custom toggle styling for better visual feedback */
+        .toggle-checkbox:checked {
+            right: 0;
+            transform: translateX(100%);
+        }
+        .toggle-checkbox {
+            height: 24px;
+            width: 24px;
+            top: 0;
+            left: 0;
+            margin: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-4xl w-full bg-white shadow-2xl rounded-xl overflow-hidden">
+        
+        <!-- Header: SISTC Branding for Impact on Teachers -->
+        <header class="bg-sistc-blue p-6 flex flex-col sm:flex-row justify-between items-center text-white">
+            <div class="mb-4 sm:mb-0 sm:text-left text-center">
+                <h1 class="text-3xl font-extrabold tracking-tight">Malware Detection System</h1>
+                <p class="text-sistc-gold text-sm mt-1">A Cybersecurity Analytics Tool</p>
+            </div>
+            <div class="text-center sm:text-right">
+                <h2 class="text-xl font-semibold">Sydney International School of</h2>
+                <h2 class="text-xl font-semibold">Technology and Commerce (SISTC)</h2>
+            </div>
+        </header>
+
+        <main class="p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Input Section (2/3 width) -->
+            <div class="lg:col-span-2">
+                <h3 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">File PE Import Simulation</h3>
+                <p class="text-sm text-gray-600 mb-6">
+                    Toggle the presence (1, On) or absence (0, Off) of the top PE Import functions (API calls) to simulate a file's behavior. This represents a fundamental concept in static malware analysis.
+                </p>
+
+                <form id="prediction-form" class="space-y-4">
+                    <div id="feature-inputs" class="max-h-96 overflow-y-auto pr-2 bg-gray-100 p-4 rounded-lg border border-gray-300 shadow-inner">
+                        <!-- Feature input toggles will be injected here by JavaScript -->
+                        
+                        <!-- Flask Jinja Template to pass Python variable to JavaScript context -->
+                        <script>
+                            // This variable is populated by Flask's render_template function
+                            const FEATURE_NAMES = JSON.parse('{{ feature_names | tojson }}');
+                        </script>
+                        
+                    </div>
+                    
+                    <button type="submit" 
+                            id="predict-button" 
+                            class="w-full bg-sistc-gold hover:bg-yellow-600 text-sistc-blue font-black text-lg py-3 px-4 rounded-lg transition duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2">
+                        <svg id="loading-spinner" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="text-white">Run Classification Analysis</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Output Section (1/3 width) -->
+            <div class="lg:col-span-1 border-t lg:border-t-0 lg:border-l pt-8 lg:pt-0 pl-0 lg:pl-8">
+                <h3 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">Result Dashboard</h3>
+                
+                <div id="result-card" class="bg-gray-100 p-6 rounded-xl shadow-lg border-2 border-gray-200 min-h-[150px] flex flex-col justify-center items-center text-center transition-all duration-500">
+                    <p id="result-status" class="text-lg text-gray-500 font-medium">Awaiting simulation input...</p>
+                    <p id="result-prediction" class="text-5xl font-extrabold mt-2 text-gray-800 transition-colors duration-500">---</p>
+                    <p id="result-confidence" class="text-sm text-gray-600 mt-2">Confidence: 0.00%</p>
+                </div>
+
+                <div id="message-box" class="mt-6 p-4 text-sm rounded-lg border bg-sistc-blue/10 text-sistc-blue border-sistc-blue hidden">
+                    <!-- Dynamic messages appear here -->
+                </div>
+
+                <h4 class="text-lg font-bold mt-6 text-gray-800">Learning Insights:</h4>
+                <ul class="list-disc list-inside text-sm text-gray-600 mt-2 space-y-2">
+                    <li>The model uses a Random Forest classifier, trained on key imported functions (PE Imports) from file headers.</li>
+                    <li>The presence of certain APIs (e.g., `WriteFile`, `CreateThread`) can strongly indicate malicious intent.</li>
+                    <li>This tool simulates **Static Analysis**, classifying files without executing them.</li>
+                </ul>
+            </div>
+        </main>
+        
+        <footer class="bg-gray-800 text-center p-4 text-sm text-gray-400">
+            A Project in Machine Learning Deployment for Educational Purposes | SISTC Cybersecurity Program
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const featureInputsContainer = document.getElementById('feature-inputs');
+            const form = document.getElementById('prediction-form');
+            const resultCard = document.getElementById('result-card');
+            const resultStatus = document.getElementById('result-status');
+            const resultPrediction = document.getElementById('result-prediction');
+            const resultConfidence = document.getElementById('result-confidence');
+            const predictButton = document.getElementById('predict-button');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const messageBox = document.getElementById('message-box');
+            
+            // --- 1. Dynamically Generate Toggles ---
+            if (typeof FEATURE_NAMES !== 'undefined' && FEATURE_NAMES.length > 0) {
+                 FEATURE_NAMES.forEach(feature => {
+                    const featureDiv = document.createElement('div');
+                    featureDiv.className = 'flex items-center justify-between py-2 border-b border-gray-200 last:border-b-0';
+                    featureDiv.innerHTML = `
+                        <label for="${feature}" class="text-sm font-medium text-gray-700 truncate mr-4" title="${feature}">${feature}</label>
+                        <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="${feature}" id="${feature}" value="0"
+                                class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer transition duration-300 ease-in-out"
+                                data-feature-name="${feature}">
+                            <label for="${feature}" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer shadow-inner"></label>
+                        </div>
+                    `;
+                    featureInputsContainer.appendChild(featureDiv);
+                });
+            } else {
+                 featureInputsContainer.innerHTML = '<p class="text-center text-red-500 font-semibold">Error: Feature list not loaded from backend. Check if `app.py` is running and the model files exist.</p>';
+            }
+
+            // Handle toggle state change and value update
+            featureInputsContainer.querySelectorAll('.toggle-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (event) => {
+                    const isChecked = event.target.checked;
+                    event.target.value = isChecked ? 1 : 0;
+                    
+                    // Update background color and position based on state
+                    const label = event.target.nextElementSibling;
+                    if (isChecked) {
+                        label.classList.remove('bg-gray-300');
+                        label.classList.add('bg-sistc-blue');
+                        event.target.classList.remove('border-gray-300');
+                        event.target.classList.add('border-sistc-blue');
+                    } else {
+                        label.classList.remove('bg-sistc-blue');
+                        label.classList.add('bg-gray-300');
+                        event.target.classList.remove('border-sistc-blue');
+                        event.target.classList.add('border-gray-300');
+                    }
+                });
+            });
+
+            // --- 2. Handle Form Submission and API Call ---
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Collect input data
+                const features = {};
+                const checkboxes = featureInputsContainer.querySelectorAll('.toggle-checkbox');
+                checkboxes.forEach(cb => {
+                    features[cb.dataset.featureName] = parseInt(cb.value, 10);
+                });
+                
+                // Clear previous message box state
+                messageBox.classList.add('hidden');
+                messageBox.classList.remove('text-malware', 'border-malware', 'text-sistc-gold', 'border-sistc-gold');
+
+
+                // Show loading state
+                predictButton.disabled = true;
+                loadingSpinner.classList.remove('hidden');
+                resultPrediction.textContent = 'Analyzing...';
+                
+                // Reset card colors
+                resultCard.classList.remove('bg-red-100', 'text-malware', 'bg-green-100', 'text-benign');
+                resultCard.classList.add('bg-gray-100');
+                resultPrediction.classList.remove('text-malware', 'text-benign');
+                resultPrediction.classList.add('text-gray-800');
+                resultStatus.textContent = "Processing...";
+                
+                try {
+                    const response = await fetch('/predict', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ features: features })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // Update UI with result
+                        resultStatus.textContent = "Classification Complete:";
+                        resultPrediction.textContent = data.prediction;
+                        resultConfidence.textContent = `Confidence: ${data.confidence}`;
+
+                        // Apply styling based on prediction
+                        if (data.label === 1) { // Malware
+                            resultCard.classList.add('bg-red-100');
+                            resultPrediction.classList.add('text-malware');
+                            resultStatus.classList.add('text-malware');
+                            messageBox.textContent = "The simulated file's API signature is highly characteristic of known malware samples.";
+                            messageBox.classList.remove('hidden');
+                            messageBox.classList.add('text-malware', 'border-malware', 'bg-red-100');
+                        } else { // Benign
+                            resultCard.classList.add('bg-green-100');
+                            resultPrediction.classList.add('text-benign');
+                            resultStatus.classList.add('text-benign');
+                            messageBox.textContent = "The simulated file's API signature is generally characteristic of benign system files.";
+                            messageBox.classList.remove('hidden');
+                            messageBox.classList.add('text-benign', 'border-benign', 'bg-green-100');
+                        }
+
+                    } else {
+                        // Handle server-side errors
+                        resultStatus.textContent = 'Prediction Error:';
+                        resultPrediction.textContent = 'Failed';
+                        resultConfidence.textContent = 'Check details below.';
+                        messageBox.textContent = `API Error: ${data.error || 'Unknown error occurred on the server.'}`;
+                        messageBox.classList.remove('hidden');
+                        messageBox.classList.add('text-malware', 'border-malware', 'bg-red-100');
+                    }
+
+                } catch (error) {
+                    // Handle network or JSON parsing errors
+                    resultStatus.textContent = 'Network Error:';
+                    resultPrediction.textContent = 'Failed';
+                    resultConfidence.textContent = 'Is server running?';
+                    messageBox.textContent = `CRITICAL ERROR: Could not connect to the Flask server. Please ensure 'python app.py' is running and accessible.`;
+                    messageBox.classList.remove('hidden');
+                    messageBox.classList.add('text-malware', 'border-malware', 'bg-red-100');
+                    console.error('Fetch error:', error);
+                } finally {
+                    // Reset button state
+                    predictButton.disabled = false;
+                    loadingSpinner.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
